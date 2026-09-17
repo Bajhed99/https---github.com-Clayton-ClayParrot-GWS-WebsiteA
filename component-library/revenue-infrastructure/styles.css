@@ -1,0 +1,732 @@
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap');
+
+@import 'tailwindcss' source(none);
+@source './Diagram.tsx';
+
+@theme {
+  /* Typography */
+  --font-serif:   'Instrument Serif', Georgia, serif;
+  --font-sans:    'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono:    'JetBrains Mono', monospace;
+
+  /* GWS Brand */
+  --color-gws-maroon:       #7A1E22;
+  --color-gws-maroon-light: #9B2C31;
+  --color-gws-gold:         #B8863B;
+  --color-gws-gold-light:   #D4A359;
+
+  /* Surfaces */
+  --color-canvas:        #F8F6EC;
+  --color-surface:       #FFFFFF;
+  --color-surface-warm:  #F5F0E8;
+  --color-surface-muted: #F0EBE2;
+
+  /* Text */
+  --color-text-primary:   #1C1917;
+  --color-text-secondary: #6B6560;
+  --color-text-tertiary:  #9C9490;
+
+  /* Borders */
+  --color-border:       #E8E2D9;
+  --color-border-strong:#D4CCC0;
+}
+
+/* ── Global reset helpers ─────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+/* ── Interactive pill / card transitions ──────────────────────────── */
+.gws-pill {
+  width: 100%;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-right: 1.5px dashed var(--color-border-strong);
+  border-radius: 0px;
+  /* Fixed height so every pill is identical regardless of label length */
+  height: 40px;
+  min-height: 40px;
+  padding: 0 14px;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 500;
+  color: #4A4540;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.14s ease, background 0.18s ease;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.gws-pill:hover {
+  border-color: var(--color-gws-gold);
+  border-right-color: var(--color-gws-gold);
+  box-shadow: 0 2px 8px rgba(184,134,59,0.12);
+  transform: translateX(2px);
+  background: #FFFCF8;
+}
+.gws-pill.active {
+  border-color: var(--color-gws-maroon);
+  border-right-color: var(--color-gws-maroon);
+  background: #FFF8F8;
+  box-shadow: 0 2px 12px rgba(122,30,34,0.08);
+}
+
+.gws-pill-detail {
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 0.28s ease, opacity 0.22s ease, padding 0.22s ease;
+  opacity: 0;
+  padding: 0 14px;
+}
+.gws-pill-detail.open {
+  max-height: 120px;
+  opacity: 1;
+  padding: 8px 14px 10px;
+}
+
+/* ── Capability badge ─────────────────────────────────────────────── */
+.gws-badge {
+  background: var(--color-canvas);
+  border: 1px solid var(--color-border-strong);
+  border-radius: 0px;
+  padding: 7px 16px;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 500;
+  color: #4A4540;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease, color 0.18s ease, transform 0.14s ease;
+  user-select: none;
+}
+.gws-badge:hover {
+  background: var(--color-surface-warm);
+  border-color: var(--color-gws-maroon);
+  color: var(--color-gws-maroon);
+  box-shadow: 0 1px 6px rgba(122,30,34,0.1);
+  transform: translateY(-1px);
+}
+.gws-badge.active {
+  background: var(--color-gws-maroon);
+  border-color: var(--color-gws-maroon);
+  color: #fff;
+  box-shadow: 0 2px 10px rgba(122,30,34,0.22);
+}
+
+/* ── Outcome row ──────────────────────────────────────────────────── */
+.gws-outcome {
+  border-radius: 0px;
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: background 0.16s ease, box-shadow 0.16s ease, transform 0.14s ease;
+  border: 1px solid transparent;
+}
+.gws-outcome:hover {
+  background: var(--color-surface-warm);
+  border-color: var(--color-border);
+  transform: translateX(3px);
+}
+.gws-outcome.active {
+  background: var(--color-surface);
+  border-color: var(--color-border-strong);
+  box-shadow: 0 1px 8px rgba(122,30,34,0.07);
+}
+.gws-outcome-detail {
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transition: max-height 0.26s ease, opacity 0.2s ease;
+}
+.gws-outcome-detail.open {
+  max-height: 80px;
+  opacity: 1;
+}
+
+/* ── Center hub hover ─────────────────────────────────────────────── */
+.gws-hub {
+  transition: box-shadow 0.22s ease;
+}
+.gws-hub:hover {
+  box-shadow: 0 4px 28px rgba(122,30,34,0.1), 0 1px 6px rgba(0,0,0,0.05) !important;
+}
+
+/* ── Flow connector (replaces canvas dot animation) ───────────────── */
+.gws-col-gap {
+  flex-shrink: 0;
+  width: 40px;
+  display: none; /* overridden at tablet */
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+/* Vertical connector on mobile (within flex-column layout) */
+.gws-flow-connector-v {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 36px;
+  position: relative;
+}
+@media (min-width: 768px) {
+  .gws-flow-connector-v { display: none; }
+}
+
+@media (min-width: 768px)  { .gws-col-gap { width: 48px; } }
+@media (min-width: 1024px) { .gws-col-gap { width: 56px; } }
+
+/* The thin track line */
+.gws-connector-track {
+  position: relative;
+  overflow: hidden;
+  background: var(--color-border);
+}
+/* Horizontal track */
+.gws-col-gap .gws-connector-track {
+  width: 100%;
+  height: 1px;
+}
+/* Vertical track */
+.gws-flow-connector-v .gws-connector-track {
+  width: 1px;
+  height: 100%;
+}
+
+/* The traveling beam */
+.gws-connector-beam {
+  position: absolute;
+  background: linear-gradient(90deg, transparent, var(--color-gws-gold), transparent);
+  animation: beam-h 1.8s ease-in-out infinite;
+}
+.gws-col-gap .gws-connector-beam {
+  top: 0; height: 100%;
+  width: 50%;
+}
+.gws-flow-connector-v .gws-connector-beam {
+  left: 0; width: 100%;
+  height: 50%;
+  background: linear-gradient(180deg, transparent, var(--color-gws-gold), transparent);
+  animation: beam-v 1.8s ease-in-out infinite;
+}
+
+@keyframes beam-h {
+  0%   { left: -50%; }
+  100% { left: 150%; }
+}
+@keyframes beam-v {
+  0%   { top: -50%; }
+  100% { top: 150%; }
+}
+
+/* Chevron marks */
+.gws-chevrons {
+  position: absolute;
+  display: flex;
+  gap: 2px;
+}
+.gws-col-gap .gws-chevrons {
+  flex-direction: row;
+  align-items: center;
+  top: 50%; transform: translateY(-50%);
+  left: 50%; margin-left: -18px;
+}
+.gws-flow-connector-v .gws-chevrons {
+  flex-direction: column;
+  align-items: center;
+  left: 50%; transform: translateX(-50%);
+  top: 50%; margin-top: -18px;
+}
+
+.gws-chevron {
+  font-size: 11px;
+  line-height: 1;
+  color: var(--color-gws-gold);
+  opacity: 0.15;
+  font-style: normal;
+  animation: chev-pulse 1.8s ease-in-out infinite;
+  font-family: var(--font-sans);
+}
+.gws-chevron:nth-child(1) { animation-delay: 0s;    }
+.gws-chevron:nth-child(2) { animation-delay: 0.22s; }
+.gws-chevron:nth-child(3) { animation-delay: 0.44s; }
+
+@keyframes chev-pulse {
+  0%, 100% { opacity: 0.12; }
+  30%       { opacity: 0.85; color: var(--color-gws-gold); }
+  60%       { opacity: 0.25; }
+}
+
+/* ── Responsive layout ────────────────────────────────────────────── */
+
+/* Mobile: single column stack */
+.gws-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.gws-col-gap { display: none; } /* hidden on mobile — vertical connectors render inline */
+
+/* Tablet and up: horizontal */
+@media (min-width: 768px) {
+  .gws-layout {
+    flex-direction: row;
+    align-items: stretch;
+    gap: 0;
+  }
+  .gws-col-gap { display: flex; }
+}
+
+/* Left / right columns */
+.gws-col-side {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+@media (min-width: 768px) {
+  .gws-col-side {
+    flex: 0 0 200px;
+  }
+}
+@media (min-width: 1024px) {
+  .gws-col-side {
+    flex: 0 0 230px;
+  }
+}
+
+/* Center column */
+.gws-col-center {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+}
+
+/* Section heading sizes */
+.gws-col-heading {
+  font-family: var(--font-serif);
+  font-size: 18px;
+  font-weight: 400;
+  color: var(--color-text-primary);
+  line-height: 1.3;
+  margin: 0;
+}
+@media (min-width: 768px) {
+  .gws-col-heading { font-size: 20px; }
+}
+@media (min-width: 1024px) {
+  .gws-col-heading { font-size: 22px; }
+}
+
+.gws-hub-title {
+  font-family: var(--font-serif);
+  font-size: 22px;
+  font-weight: 400;
+  color: var(--color-text-primary);
+  margin: 0 0 10px;
+  line-height: 1.2;
+}
+@media (min-width: 768px) {
+  .gws-hub-title { font-size: 26px; }
+}
+@media (min-width: 1024px) {
+  .gws-hub-title { font-size: 30px; }
+}
+
+/* Capability badges: allow wrap on small screens */
+.gws-badge-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+/* Process steps: allow wrap */
+.gws-steps {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  row-gap: 4px;
+}
+
+/* Badge detail panel */
+.gws-badge-detail {
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transition: max-height 0.28s ease, opacity 0.22s ease, margin 0.22s ease;
+  margin-top: 0;
+}
+.gws-badge-detail.open {
+  max-height: 100px;
+  opacity: 1;
+  margin-top: 12px;
+}
+
+/* Outer page wrapper */
+.gws-page {
+  min-height: 100vh;
+  background: var(--color-canvas);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 0px 40px;
+  font-family: var(--font-sans);
+}
+@media (min-width: 640px) {
+  .gws-page { padding: 0px 40px; align-items: center; }
+}
+@media (min-width: 1024px) {
+  .gws-page { padding: 0px 40px; }
+}
+
+/* GWS desktop visual refinements: preserve package arrangement, animations, and interaction logic. */
+.gws-page {
+  --color-gws-maroon: #841617;
+  --color-gws-maroon-light: #721315;
+  --color-gws-gold: #841617;
+  --color-gws-gold-light: #841617;
+  --color-text-primary: #000000;
+  --color-text-secondary: #625E59;
+  --color-text-tertiary: #625E59;
+  --color-border: #DDD6CC;
+  --color-border-strong: #841617;
+}
+
+.gws-page .gws-diagram-section-header {
+  max-width: 760px;
+  margin: 0 auto 48px;
+  text-align: center;
+}
+
+.gws-page .gws-diagram-section-header h2 {
+  margin: 0 0 20px;
+  color: #000000;
+  font-family: "DM Serif Display", Georgia, serif;
+  font-size: clamp(2rem, 3.5vw, 2.75rem);
+  font-weight: 400;
+  letter-spacing: -0.027em;
+  line-height: 1.15;
+}
+
+.gws-page .gws-diagram-heading-accent {
+  color: #841617;
+}
+
+.gws-page .gws-diagram-section-header p {
+  max-width: 660px;
+  margin: 0 auto;
+  color: #625E59;
+  font-family: "DM Sans", Arial, sans-serif;
+  font-size: 18px;
+  line-height: 1.65;
+}
+
+.gws-page .gws-col-side,
+.gws-page .gws-hub,
+.gws-page .gws-pill,
+.gws-page .gws-badge,
+.gws-page .gws-outcome,
+.gws-page .gws-badge-detail p,
+.gws-page .gws-page {
+  border-radius: 0 !important;
+}
+
+.gws-page .gws-col-side {
+  background: #F8F6EC !important;
+  border-color: #DDD6CC !important;
+}
+
+.gws-page .gws-hub {
+  background: #FFFFFF !important;
+  border-color: #DDD6CC !important;
+}
+
+.gws-page .gws-col-heading,
+.gws-page .gws-hub-title {
+  color: #000000;
+  font-family: "DM Serif Display", Georgia, serif;
+  font-size: 28px;
+  font-weight: 400;
+  line-height: 1.25;
+}
+
+.gws-page .gws-col-heading { margin-bottom: 20px; }
+.gws-page .gws-hub-title { margin-bottom: 16px; }
+
+.gws-page .gws-col-side > div > p,
+.gws-page .gws-hub > p,
+.gws-page .gws-pill-detail p,
+.gws-page .gws-outcome > div > span:nth-child(2),
+.gws-page .gws-outcome-detail p,
+.gws-page .gws-badge-detail p,
+.gws-page .gws-col-side > div:last-child > p {
+  font-family: "DM Sans", Arial, sans-serif !important;
+  font-size: 16px !important;
+  line-height: 1.6 !important;
+}
+
+.gws-page .gws-col-side > div > p:first-child,
+.gws-page .gws-hub > p:first-of-type,
+.gws-page .gws-outcome > div > span:first-child,
+.gws-page .gws-steps > span > span {
+  color: #841617 !important;
+  font-family: "DM Sans", Arial, sans-serif !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.1em !important;
+  line-height: 1.45 !important;
+}
+
+.gws-page .gws-pill {
+  min-height: 48px;
+  height: auto;
+  border: 1px solid #841617;
+  border-right: 2px solid #841617;
+  background: #FFFFFF;
+  padding: 11px 14px;
+  color: #000000;
+  font-family: "DM Sans", Arial, sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.gws-page .gws-pill:hover,
+.gws-page .gws-pill.active {
+  border-color: #841617;
+  border-right-color: #841617;
+  background: #F2E7E3;
+  box-shadow: none;
+}
+
+.gws-page .gws-badge {
+  min-height: 48px;
+  border: 1px solid #841617;
+  background: #F8F6EC;
+  padding: 10px 14px;
+  color: #000000;
+  font-family: "DM Sans", Arial, sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.gws-page .gws-badge:hover,
+.gws-page .gws-badge.active {
+  border-color: #841617;
+  background: #841617;
+  color: #FFFFFF;
+  box-shadow: none;
+}
+
+.gws-page .gws-outcome {
+  border: 1px solid transparent;
+  border-left: 2px solid #841617;
+  padding: 12px;
+}
+
+.gws-page .gws-outcome:hover,
+.gws-page .gws-outcome.active {
+  border-color: #841617;
+  border-left-color: #841617;
+  background: #FFFFFF;
+  box-shadow: none;
+}
+
+.gws-page .gws-badge-detail p {
+  border-color: #841617 !important;
+  border-radius: 0 !important;
+  background: #F8F6EC !important;
+  color: #625E59 !important;
+}
+
+.gws-page .gws-col-gap .gws-connector-track {
+  height: 2px;
+  background: #841617;
+}
+
+.gws-page .gws-flow-connector-v .gws-connector-track {
+  width: 2px;
+  background: #841617;
+}
+
+.gws-page .gws-connector-beam {
+  background: linear-gradient(90deg, transparent, #841617, transparent);
+}
+
+.gws-page .gws-flow-connector-v .gws-connector-beam {
+  background: linear-gradient(180deg, transparent, #841617, transparent);
+}
+
+.gws-page .gws-chevron,
+.gws-page .gws-chevrons {
+  color: #841617;
+}
+
+.gws-page .gws-steps {
+  gap: 8px;
+}
+
+.gws-page .gws-steps > span > span {
+  color: #625E59 !important;
+  letter-spacing: 0 !important;
+}
+
+.gws-page .gws-steps > span > span + span {
+  background: #841617 !important;
+}
+
+@media (max-width: 1023px) {
+  .gws-page .gws-layout {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .gws-page .gws-col-gap {
+    display: none;
+  }
+
+  .gws-page .gws-flow-connector-v {
+    display: flex;
+    height: 48px;
+  }
+
+  .gws-page .gws-col-side {
+    flex: 1 1 auto;
+    width: 100%;
+  }
+
+  .gws-page .gws-hub {
+    border-top: 1px solid #DDD6CC;
+    border-bottom: 1px solid #DDD6CC;
+    padding: 28px 20px !important;
+  }
+
+  .gws-page .gws-badge-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+    gap: 10px;
+  }
+
+  .gws-page .gws-badge--static {
+    min-height: 48px;
+    display: grid;
+    place-items: center;
+    cursor: default;
+    pointer-events: none;
+    text-align: center;
+    white-space: normal;
+  }
+
+  .gws-page .gws-badge-detail {
+    display: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .gws-page {
+    padding: 72px 20px;
+  }
+
+  .gws-page .gws-diagram-section-header {
+    margin-bottom: 32px;
+  }
+
+  .gws-page .gws-diagram-section-header h2 {
+    font-size: 32px;
+  }
+
+  .gws-page .gws-diagram-section-header p,
+  .gws-page .gws-hub > p,
+  .gws-page .gws-pill-detail p,
+  .gws-page .gws-outcome > div > span:nth-child(2),
+  .gws-page .gws-outcome-detail p,
+  .gws-page .gws-badge-detail p,
+  .gws-page .gws-col-side > div:last-child > p {
+    font-size: 16px !important;
+  }
+
+  .gws-page .gws-col-side {
+    padding: 24px 20px !important;
+  }
+
+  .gws-page .gws-col-heading,
+  .gws-page .gws-hub-title {
+    font-size: 24px;
+  }
+}
+
+/* Keep the existing beam animation, but separate its solid Crimson from the lower-opacity Crimson track. */
+.gws-page .gws-col-gap .gws-connector-track,
+.gws-page .gws-flow-connector-v .gws-connector-track {
+  background: rgba(132, 22, 23, 0.28);
+}
+
+.gws-page .gws-col-gap .gws-connector-beam {
+  background: linear-gradient(90deg, transparent 0%, #841617 28%, #841617 72%, transparent 100%);
+  box-shadow: 0 0 4px rgba(132, 22, 23, 0.72);
+  opacity: 1;
+}
+
+.gws-page .gws-flow-connector-v .gws-connector-beam {
+  background: linear-gradient(180deg, transparent 0%, #841617 28%, #841617 72%, transparent 100%);
+  box-shadow: 0 0 4px rgba(132, 22, 23, 0.72);
+  opacity: 1;
+}
+
+/* Restore the original control-border palette while retaining the approved typography and connector refinements. */
+.gws-page .gws-pill {
+  border-color: #E8E2D9;
+  border-right-color: #D4CCC0;
+}
+
+.gws-page .gws-pill:hover {
+  border-color: #B8863B;
+  border-right-color: #B8863B;
+}
+
+.gws-page .gws-pill.active {
+  border-color: #7A1E22;
+  border-right-color: #7A1E22;
+}
+
+.gws-page .gws-badge {
+  border-color: #D4CCC0;
+}
+
+.gws-page .gws-badge:hover,
+.gws-page .gws-badge.active {
+  border-color: #7A1E22;
+}
+
+.gws-page .gws-outcome {
+  border-color: transparent;
+  border-left-color: transparent;
+}
+
+.gws-page .gws-outcome:hover {
+  border-color: #E8E2D9;
+  border-left-color: #E8E2D9;
+}
+
+.gws-page .gws-outcome.active {
+  border-color: #D4CCC0;
+  border-left-color: #D4CCC0;
+}
+
+@media (min-width: 1024px) {
+  .gws-page .gws-col-side {
+    flex: 0 0 350px;
+    min-width: 350px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }

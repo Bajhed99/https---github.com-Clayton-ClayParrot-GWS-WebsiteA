@@ -4,6 +4,8 @@
  * The live Section 06 and Section 07 components are adapted from reviewed supplied packages; no generated assets are used.
  */
 @import "tailwindcss";
+/* The component library has its own preview build and is not part of the site. */
+@source not "../../component-library";
 @import "tw-animate-css";
 
 @theme {

@@ -1,0 +1,67 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+@import 'tailwindcss' source(none);
+@source './Diagram.tsx';
+
+@theme {
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body: 'Plus Jakarta Sans', system-ui, sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::-webkit-scrollbar { width: 0; height: 0; }
+* { scrollbar-width: none; }
+
+@keyframes drift-right {
+  0%   { transform: translateX(-3px); opacity: 0.45; }
+  50%  { transform: translateX(1px);  opacity: 1; }
+  100% { transform: translateX(-3px); opacity: 0.45; }
+}
+
+@keyframes drift-gold {
+  0%   { transform: translateX(-3px); opacity: 0.5; }
+  50%  { transform: translateX(1px);  opacity: 1; }
+  100% { transform: translateX(-3px); opacity: 0.5; }
+}
+
+@keyframes pulse-ring-gold {
+  0%   { box-shadow: 0 0 0 0 rgba(184,134,59,0.35); }
+  60%  { box-shadow: 0 0 0 10px rgba(184,134,59,0); }
+  100% { box-shadow: 0 0 0 0 rgba(184,134,59,0); }
+}
+
+@keyframes source-in {
+  from { opacity: 0; transform: translateY(5px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.anim-drift      { animation: drift-right  2.6s ease-in-out infinite; }
+.anim-drift-gold { animation: drift-gold   2.4s ease-in-out infinite; }
+.anim-pulse-gold { animation: pulse-ring-gold 2.6s ease-in-out infinite; }
+.anim-source-in  { animation: source-in 0.35s ease-out both; }
+
+@keyframes particle-stream {
+  0%   { transform: translateX(-34px); opacity: 0; }
+  14%  { opacity: 1; }
+  86%  { opacity: 1; }
+  100% { transform: translateX(34px);  opacity: 0; }
+}
+
+@keyframes path-draw {
+  from { stroke-dashoffset: 220; opacity: 0; }
+  10%  { opacity: 1; }
+  to   { stroke-dashoffset: 0;   opacity: 1; }
+}
+
+@keyframes node-appear {
+  from { opacity: 0; transform: scale(0.5); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
